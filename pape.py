@@ -1,5 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
-import os, sys
+import os
+import json
+import sys
 from supabase import create_client, Client
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, UserForm
@@ -24,7 +26,6 @@ def login():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
-        print('form', file=sys.stderr)
         try:
             # Authenticate with Supabase
             auth_response = supabase.auth.sign_in_with_password({
@@ -32,24 +33,16 @@ def login():
                 "password": password
             })
 
-            # Get user details from 'user' table
-            user_response = supabase.table("user").select("*").eq("email", email).execute()
-            user_data = user_response.data
-            print(user_response, file=sys.stderr)
 
-            if not user_data:
-                print('usernotfound', file=sys.stderr)
-                flash("User not found in database", 'login_error')
-                return render_template('login.html', form=form)
+            user_id = auth_response.user.id
+            username = auth_response.user.user_metadata['username']
 
-            # Store user in session
-            session["user"] = user_data[0]
+            text = f"User {username} logged in successfully with ID {user_id}"
 
-            # Redirect to the user's home page
             return redirect(url_for('dashboard'))
 
         except Exception as e:
-            flash(str(e), 'login_error')
+            print('Error:', e, file=sys.stderr)
 
     else:
         print('else', file=sys.stderr)
@@ -85,14 +78,11 @@ def signup():
 
 @app.route("/dashboard")
 def dashboard():
-    user = is_logged_in()
+    user = supabase.auth.get_user()
     if user is None:
         return redirect(url_for("login"))
-     # Fetch all files uploaded by the user
-    files_response = supabase.table('uploaded-file').select("*").eq('user_id', user["id"]).execute()
-    files = files_response.data if files_response.data else []
     
-    return render_template("dashboard.html", user=user, files=files)
+    return render_template("dashboard.html", user=user)
 
 @app.route("/logout")
 def logout():
