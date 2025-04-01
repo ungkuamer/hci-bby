@@ -24,7 +24,7 @@ def login():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
-
+        print('form', file=sys.stderr)
         try:
             # Authenticate with Supabase
             auth_response = supabase.auth.sign_in_with_password({
@@ -35,8 +35,10 @@ def login():
             # Get user details from 'user' table
             user_response = supabase.table("user").select("*").eq("email", email).execute()
             user_data = user_response.data
+            print(user_response, file=sys.stderr)
 
             if not user_data:
+                print('usernotfound', file=sys.stderr)
                 flash("User not found in database", 'login_error')
                 return render_template('login.html', form=form)
 
@@ -50,6 +52,7 @@ def login():
             flash(str(e), 'login_error')
 
     else:
+        print('else', file=sys.stderr)
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
                 flash(f"Error in {fieldName}: {err}", 'login_error')
