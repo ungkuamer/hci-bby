@@ -32,3 +32,8 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     submit = SubmitField("Submit")
+
+class BookForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    pages = StringField('Pages', validators=[DataRequired()])
+    submit = SubmitField('Submit')
