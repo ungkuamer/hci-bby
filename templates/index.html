@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home - P W P{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section id="home" class="bg-pink-500 text-white py-20">
+        <div class="container mx-auto text-center px-6">
+            <h2 class="text-4xl font-bold mb-4">Track Your Reading Progress</h2>
+            <p class="text-lg mb-6">Keep track of the books you're reading, set goals, and earn rewards!</p>
+            <a href="/signup" class="bg-white text-pink-500 px-6 py-3 text-xl font-semibold rounded-lg hover:bg-gray-200 transition">Get Started</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-white">
+        <div class="container mx-auto text-center px-6">
+            <h2 class="text-3xl font-semibold mb-8">Key Features</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4">Track Your Books</h3>
+                    <p>Log the books you're reading and track your progress as you go.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4">Set Goals</h3>
+                    <p>Set daily or weekly reading goals to help you stay on track.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4">Earn Rewards</h3>
+                    <p>Get rewarded with points and badges when you complete books or achieve goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section id="signup" class="bg-pink-500 text-white py-20">
+        <div class="container mx-auto text-center px-6">
+            <h2 class="text-3xl font-semibold mb-6">Join Us Today</h2>
+            <p class="text-lg mb-6">Sign up to start tracking your reading and earn your personalized rewards!</p>
+            <a href="/signup" class="bg-white text-pink-500 px-6 py-3 text-xl font-semibold rounded-lg hover:bg-gray-200 transition">Sign Up Now</a>
+        </div>
+    </section>
+{% endblock %}

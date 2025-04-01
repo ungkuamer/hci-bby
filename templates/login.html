@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block title %}Login - Reading Habit Tracker{% endblock %}
+
+{% block content %}
+    <section id="login" class="bg-gray-100 py-20">
+        <div class="container mx-auto text-center px-6">
+            <h2 class="text-3xl font-semibold mb-6">Login to Your Account</h2>
+            <p class="text-lg mb-8">Enter your details to access your reading habits and progress.</p>
+
+            <!-- Login Form -->
+            <form action="/login" method="POST" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg">
+                {{ form.csrf_token }}
+                <div class="mb-6">
+                    <label for="email" class="block text-left font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="email" name="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="you@example.com">
+                </div>
+
+                <div class="mb-6">
+                    <label for="password" class="block text-left font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="********">
+                </div>
+
+                <div class="mb-6 flex items-center justify-between">
+                    <label for="remember" class="inline-flex items-center text-gray-700">
+                        <input type="checkbox" id="remember" name="remember" class="form-checkbox text-green-500">
+                        <span class="ml-2">Remember me</span>
+                    </label>
+                    <a href="#" class="text-sm text-green-500 hover:text-green-600">Forgot password?</a>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition">Login</button>
+                </div>
+            </form>
+
+            <p class="mt-6 text-gray-700">Don't have an account? <a href="/signup" class="text-green-500 hover:text-green-600">Sign up here</a></p>
+        </div>
+    </section>
+{% endblock %}

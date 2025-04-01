@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <!-- Navigation Bar -->
+    <nav class="flex justify-between items-center border-b pb-3">
+        <div class="text-xl font-bold">PWP</div>
+        <ul class="flex space-x-6">
+            <li><a href="#" class="hover:text-pink-500">Home</a></li>
+            <li><a href="#" class="hover:text-pink-500">Journey</a></li>
+            <li><a href="#" class="hover:text-pink-500">Streaks</a></li>
+        </ul>
+        <div class="flex space-x-4 items-center">
+            <input type="text" placeholder="Find friend" class="border rounded-lg p-2">
+            <button class="bg-pink-500 text-white px-4 py-2 rounded-lg">Search</button>
+            <div class="w-8 h-8 bg-gray-300 rounded-full"></div>
+        </div>
+    </nav>
+
+    <!-- Book Progress Circles -->
+    <div class="flex justify-center space-x-8 mt-10">
+        <!-- Add Book Circle -->
+        <div class="relative flex flex-col items-center">
+            <div class="w-40 h-40 border-4 border-gray-300 rounded-full flex items-center justify-center">
+                <p class="text-center">Add your<br>Book Name<br><span class="text-sm">(Press Ctrl + A to add)</span></p>
+            </div>
+        </div>
+
+        <!-- Progress Circle -->
+        <div class="relative flex flex-col items-center">
+            <div class="relative w-40 h-40">
+                <svg class="w-full h-full" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" stroke="#E5E7EB" stroke-width="6" fill="none"></circle>
+                    <circle cx="50" cy="50" r="45" stroke="#EC4899" stroke-width="6" fill="none" stroke-dasharray="282.6" stroke-dashoffset="80"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <p class="text-sm">How to Make 1 Million</p>
+                    <button class="bg-pink-500 text-white px-4 py-2 rounded-lg mt-2">Mark Page</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
