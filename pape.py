@@ -122,8 +122,11 @@ def dashboard():
         title = book["title"]
         pages = book["pages"]
         read = book["pages_read"]
-        books.append({"id": book_id, "title": title, "pages": pages, "read": read})
+        progress = int((read/pages)*100)
+        books.append({"id": book_id, "title": title, "pages": pages, "read": read, "progress" : progress})
 
+    books.sort(key=lambda x: x["progress"], reverse=True)
+    
     top_reward_resp = supabase.table("rewards").select("reward_name, points").eq("user_id", user.user.id).order("priority", desc=False).limit(1).execute()
     if len(top_reward_resp.data) != 0:
         top_reward = top_reward_resp.data[0]
@@ -166,7 +169,7 @@ def update_pages(book_id):
     except Exception as e:
         return f"Error updating pages: {str(e)}"
 
-@app.route("/remove_book/<int:book_id>")
+@app.route("/remove_book/<book_id>")
 def remove_book(book_id):
     user = supabase.auth.get_user()
     if user is None:

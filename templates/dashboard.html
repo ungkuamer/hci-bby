@@ -15,7 +15,7 @@
 
 <div class="container mx-auto p-6">
     <div class="mb-8 text-center">
-        <h1 class="text-2xl font-bold text-gray-800">Hello, {{ user.user.user_metadata["username"] }}</h1>
+        <h1 class="text-2xl font-bold text-gray-800">Hello, {{ user.user.user_metadata["username"] }}!</h1>
         <p class="text-lg text-pink-600 mt-1">You currently have <span class="font-semibold">{{ points }}</span> points.</p>
     </div>
 
@@ -44,7 +44,6 @@
             {% if books|length <= 2 %}
             <div class="flex justify-center flex-wrap gap-8">
                 {% for book in books %}
-                    {% set progress = (book.read / book.pages * 100) %}
                     <div class="relative flex flex-col items-center">
                         <div class="relative w-40 h-40">
                             <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -59,16 +58,17 @@
                                     stroke-width="6"
                                     fill="none"
                                     stroke-dasharray="282.6"
-                                    stroke-dashoffset="{{ 282.6 - (progress / 100 * 282.6) }}"
+                                    stroke-dashoffset="{{ 282.6 - (book.progress / 100 * 282.6) }}"
                                     stroke-linecap="round"
                                 />
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                <p class="font-semibold text-pink-600 text-sm">{{ book.title }}</p>
-                                <p class="text-gray-700 text-sm">Pages: {{ book.pages }}</p>
-                                <p class="text-gray-500 text-sm">Read: {{ book.read }}</p>
-                                <p class="text-gray-500 text-sm">{{ progress | int }}%</p>
-                                <a href="javascript:void(0)" onclick="openAddPagesModal('{{ book.id }}')" class="text-pink-500 text-xs underline mt-1">Add Pages</a>
+                                <p class="text-pink-600 font-bold text-lg break-words max-w-[5.5rem] text-center">{{ book.title }}</p>
+                                <p class="text-pink-600 font-bold text-sm break-words max-w-[5.5rem] text-center">{{ book.title }}</p>
+                                <p class="text-gray-700 text-sm">{{ book.read }}/{{ book.pages }} read</p>
+                                <p class="text-pink-500 font-semibold text-sm">{{ book.progress }}%</p>
+                                <a href="javascript:void(0)" onclick="openAddPagesModal('{{ book.id }}')" class="text-pink-500 text-xs underline hover:text-pink-600">Add Pages</a>
+                                <a href="{{ url_for('remove_book', book_id=book.id) }}" class="text-gray-500 text-xs underline hover:text-red-600">Remove</a>
                             </div>
                         </div>
                     </div>
@@ -77,7 +77,6 @@
             {% else %}
             <div class="flex justify-center flex-wrap gap-8">
                 {% for book in books %}
-                    {% set progress = (book.read / book.pages * 100) %}
                     <div class="relative flex flex-col items-center">
                         <div class="relative w-40 h-40">
                             <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -92,17 +91,16 @@
                                     stroke-width="6"
                                     fill="none"
                                     stroke-dasharray="282.6"
-                                    stroke-dashoffset="{{ 282.6 - (progress / 100 * 282.6) }}"
+                                    stroke-dashoffset="{{ 282.6 - (book.progress / 100 * 282.6) }}"
                                     stroke-linecap="round"
                                 />
                             </svg>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                <p class="font-semibold text-pink-600 text-sm">{{ book.title }}</p>
-                                <p class="text-gray-700 text-sm">Pages: {{ book.pages }}</p>
-                                <p class="text-gray-500 text-sm">Read: {{ book.read }}</p>
-                                <p class="text-gray-500 text-sm">{{ progress | int }}%</p>
-                                <a href="javascript:void(0)" onclick="openAddPagesModal({{ book.id }})" class="text-pink-500 text-xs underline mt-1">Add Pages</a>
-
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-center space-y-0.5">
+                                <p class="text-pink-600 font-bold text-sm break-words max-w-[5.5rem] text-center">{{ book.title }}</p>
+                                <p class="text-gray-700 text-sm">{{ book.read }}/{{ book.pages }} read</p>
+                                <p class="text-pink-500 font-semibold text-sm">{{ book.progress }}%</p>
+                                <a href="javascript:void(0)" onclick="openAddPagesModal('{{ book.id }}')" class="text-pink-500 text-xs underline hover:text-pink-600">Add Pages</a>
+                                <a href="{{ url_for('remove_book', book_id=book.id) }}" class="text-gray-500 text-xs underline hover:text-red-600">Remove</a>
                             </div>
                         </div>
                     </div>
