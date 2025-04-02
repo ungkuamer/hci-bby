@@ -1,20 +1,22 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 import os
-import json
 import sys
 from supabase import create_client, Client
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, UserForm, BookForm
 import logging
+from dotenv import load_dotenv
 
+load_dotenv()
 # Supabase credentials
-url: str = "https://gnslsajivcvhjomcairx.supabase.co"
-key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imduc2xzYWppdmN2aGpvbWNhaXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyNTU5NzMsImV4cCI6MjA1ODgzMTk3M30.nbrw9uWK2Uxmp92RmZCLZCp_aGIXBJJkieJzNewJW7g"
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+
 supabase: Client = create_client(url, key)
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
-app.config['SECRET_KEY'] = "randomrandom"
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 

@@ -14,7 +14,7 @@
         <div class="container mx-auto flex items-center justify-between px-6 relative">
             
             <!-- Title (dashboard link) -->
-            <a href="/dashboard" class="text-2xl font-bold hover:text-gray-600 z-10">
+            <a href="{{ url_for('dashboard' )}}" class="text-2xl font-bold hover:text-gray-600 z-10">
                 Pain w Purpose
             </a>
     
@@ -25,7 +25,7 @@
                     
                     {% if points >= top_reward.points %}
                         <!-- Full bar - Claim reward -->
-                        <a href="/rewards" class="inline-block mt-1 bg-green-500 text-white px-3 py-1.5 rounded hover:bg-green-600 text-sm font-semibold">
+                        <a href="{{ url_for('rewards') }}" class="inline-block mt-1 bg-green-500 text-white px-3 py-1.5 rounded hover:bg-green-600 text-sm font-semibold">
                             Claim Reward
                         </a>
                     {% else %}
@@ -42,10 +42,10 @@
     
             <!-- Right-side Section -->
             <div class="flex items-center space-x-4 z-10">
-                <a href="/rewards" class="text-md font-medium hover:text-gray-600">
+                <a href="{{ url_for('rewards') }}" class="text-md font-medium hover:text-gray-600">
                     Reward
                 </a>
-                <a href="/logout" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600">
+                <a href="{{ url_for('logout') }}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600">
                     Logout
                 </a>
             </div>

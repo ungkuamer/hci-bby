@@ -5,9 +5,8 @@
 
 ## Refactor
 - [ ] Add try/except on all query
-- [ ] Move creds to env file
-- [ ] Enable and add key for RLS
-- [ ] Modify link to add structure
+- [x] Move creds to env file
+- [x] Modify link to add structure
 
 ## Features
 - [x] Add claim button to reward

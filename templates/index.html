@@ -8,7 +8,7 @@
         <div class="container mx-auto text-center px-6">
             <h2 class="text-4xl font-bold mb-4">Track Your Reading Progress</h2>
             <p class="text-lg mb-6">Keep track of the books you're reading, set goals, and earn rewards!</p>
-            <a href="/signup" class="bg-white text-pink-500 px-6 py-3 text-xl font-semibold rounded-lg hover:bg-gray-200 transition">Get Started</a>
+            <a href="{{ url_for('signup') }}" class="bg-white text-pink-500 px-6 py-3 text-xl font-semibold rounded-lg hover:bg-gray-200 transition">Get Started</a>
         </div>
     </section>
 
@@ -38,7 +38,7 @@
         <div class="container mx-auto text-center px-6">
             <h2 class="text-3xl font-semibold mb-6">Join Us Today</h2>
             <p class="text-lg mb-6">Sign up to start tracking your reading and earn your personalized rewards!</p>
-            <a href="/signup" class="bg-white text-pink-500 px-6 py-3 text-xl font-semibold rounded-lg hover:bg-gray-200 transition">Sign Up Now</a>
+            <a href="{{ url_for('signup' )}}" class="bg-white text-pink-500 px-6 py-3 text-xl font-semibold rounded-lg hover:bg-gray-200 transition">Sign Up Now</a>
         </div>
     </section>
 {% endblock %}
