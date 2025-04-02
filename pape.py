@@ -5,7 +5,7 @@ import sys
 from supabase import create_client, Client
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, UserForm, BookForm
-from func import is_logged_in
+import logging
 
 # Supabase credentials
 url: str = "https://gnslsajivcvhjomcairx.supabase.co"
@@ -76,6 +76,11 @@ def signup():
     
     return render_template('signup.html', form=form)
 
+@app.route('/logout')
+def logout():
+    supabase.auth.sign_out()
+    return redirect(url_for('login'))
+
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
     form = BookForm()
@@ -117,8 +122,14 @@ def dashboard():
         pages = book["pages"]
         read = book["pages_read"]
         books.append({"id": book_id, "title": title, "pages": pages, "read": read})
-    
-    return render_template("dashboard.html", user=user, form=form, books=books, points=points)
+
+    top_reward_resp = supabase.table("rewards").select("reward_name, points").eq("user_id", user.user.id).order("priority", desc=False).limit(1).execute()
+    if len(top_reward_resp.data) != 0:
+        top_reward = top_reward_resp.data[0]
+    else:
+        top_reward = None
+        
+    return render_template("dashboard.html", user=user, form=form, books=books, points=points, top_reward=top_reward)
 
 @app.route("/update_pages/<book_id>", methods=["POST"])
 def update_pages(book_id):
@@ -166,10 +177,198 @@ def remove_book(book_id):
     except Exception as e:
         return f"Error removing book: {str(e)}"
 
-@app.route('/logout')
-def logout():
-    supabase.auth.sign_out()
-    return redirect(url_for('login'))
+@app.route("/rewards")
+def rewards():
+    user = supabase.auth.get_user()
+    if user is None:
+        return redirect(url_for("login"))
+    
+    form = BookForm()
+    curr_user = supabase.table("users").select("*").eq("id", user.user.id).execute()
+    points = curr_user.data[0]["points"]
+
+    try:
+        curr_rewards = supabase.table("rewards").select("*").eq("user_id", user.user.id).order('priority', desc=False).execute()
+        rewards_data = curr_rewards.data
+        
+    except Exception as e:
+        return f"Error fetching rewards: {str(e)}"
+    
+    top_reward_resp = supabase.table("rewards").select("reward_name, points").eq("user_id", user.user.id).order("priority", desc=False).limit(1).execute()
+    if len(top_reward_resp.data) != 0:
+        top_reward = top_reward_resp.data[0]
+    else:
+        top_reward = None
+        
+    return render_template("rewards.html", user=user, rewards=rewards_data, points=points, form=form, top_reward=top_reward)
+
+@app.route("/rewards/add", methods=["POST"])
+def add_reward():
+    user = supabase.auth.get_user()
+    if user is None:
+        return redirect(url_for("login"))
+    
+    reward_name = request.form.get("reward_name")
+    points_required = request.form.get("points_required")
+
+    try:
+        priority_res = supabase.table("rewards").select("priority").eq("user_id", user.user.id).order('priority', desc=True).limit(1).execute()
+        max_priority = 1
+
+        if priority_res.data:
+            max_priority = priority_res.data[0]["priority"] + 1
+
+    except Exception as e:
+        return f"Error fetching priority: {str(e)}"
+    try:
+        response = supabase.table("rewards").insert({
+            "reward_name": reward_name,
+            "points": points_required,
+            "priority": max_priority,
+            "user_id": user.user.id
+        }).execute()
+        return redirect(url_for("rewards"))
+    except Exception as e:
+        return f"Error adding reward: {str(e)}"
+    
+@app.route("/rewards/prioritise/<int:reward_id>", methods=["POST"])
+def prioritise_reward(reward_id):
+    user = supabase.auth.get_user()
+    if user is None:
+        return redirect(url_for("login"))
+    
+    try:
+        priority_res = supabase.table("rewards").select("id, priority").eq("user_id", user.user.id).eq("id", reward_id).maybe_single().execute()
+        target_reward = priority_res.data
+
+        old_priority = target_reward["priority"]
+
+        if old_priority == 1:
+            return redirect(url_for("rewards"))
+        
+        reward_shift = supabase.table("rewards").select("id, priority").eq("user_id", user.user.id).lt("priority", old_priority).execute()
+        rewards_to_shift = reward_shift.data
+
+        for reward in sorted(rewards_to_shift, key=lambda x: x["priority"], reverse=True):
+            updated_res = supabase.table("rewards").update({"priority": reward["priority"] + 1}).eq("id", reward["id"]).execute()
+
+            updated_target = supabase.table("rewards").update({"priority": 1}).eq("id", reward_id).execute()
+
+        return redirect(url_for("rewards"))
+    
+    except Exception as e:
+        return f"Error fetching reward: {str(e)}"
+    
+@app.route('/rewards/remove/<int:reward_id>', methods=['POST'])
+def remove_reward(reward_id):
+    """Removes a reward and shifts subsequent priorities up."""
+    if not supabase:
+        flash("Database connection failed.", "error")
+        return redirect(url_for('rewards'))
+
+    user = supabase.auth.get_user()
+    user_id = user.user.id
+    if not user_id:
+        flash("User not logged in.", "error")
+        return redirect(url_for('login'))
+
+    try:
+        # --- Transactional Logic (Simulated) ---
+        # Again, a stored procedure is recommended for atomicity.
+
+        # 1. Get the reward to be removed to find its priority
+        target_reward_resp = supabase.table('rewards') \
+                                     .select('id, priority, reward_name') \
+                                     .eq('user_id', user_id) \
+                                     .eq('id', reward_id) \
+                                     .maybe_single() \
+                                     .execute()
+        target_reward = target_reward_resp.data
+
+        if not target_reward:
+            flash("Reward not found or you don't have permission.", "error")
+            return redirect(url_for('rewards'))
+
+        removed_priority = target_reward['priority']
+        removed_name = target_reward['reward_name']
+
+        delete_resp = supabase.table('rewards') \
+                              .delete() \
+                              .eq('id', reward_id) \
+                              .execute()
+
+        if not delete_resp or ('error' in delete_resp and delete_resp['error'] is not None):
+            error_details = delete_resp.get('error')
+            flash(f"Failed to remove reward. Error: {error_details}", "error")
+            logging.error(f"Failed to delete reward {reward_id} for user {user_id}. Response: {delete_resp}")
+            return redirect(url_for('rewards'))
+
+
+        logging.info(f"Deleted reward {reward_id} ('{removed_name}') for user {user_id}")
+
+        rewards_to_shift_resp = supabase.table('rewards') \
+                                      .select('id, priority') \
+                                      .eq('user_id', user_id) \
+                                      .gt('priority', removed_priority) \
+                                      .execute()
+
+        rewards_to_shift = rewards_to_shift_resp.data
+
+        for reward in sorted(rewards_to_shift, key=lambda x: x['priority']):
+            update_resp = supabase.table('rewards') \
+                                .update({'priority': reward['priority'] - 1}) \
+                                .eq('id', reward['id']) \
+                                .execute()
+
+        flash(f"Reward '{removed_name}' removed successfully!", "success")
+        logging.info(f"Shifted priorities after removing reward {reward_id} for user {user_id}")
+
+
+    except Exception as e:
+        logging.error(f"Error removing reward {reward_id} for user {user_id}: {e}")
+        flash(f"An error occurred during removal: {e}", "error")
+
+    return redirect(url_for('rewards'))
+
+@app.route('/rewards/claim/<int:reward_id>', methods=['POST'])
+def claim_reward(reward_id):
+    user = supabase.auth.get_user()
+    if user is None:
+        return redirect(url_for("login"))
+    
+    user_id = user.user.id
+
+    try:
+        user_resp = supabase.table("users").select("points").eq("id", user_id).execute()
+        user_points = user_resp.data[0]["points"]
+
+        reward_resp = supabase.table("rewards").select("points", ).eq("user_id", user_id).eq("id", reward_id).execute()
+        reward_points = reward_resp.data[0]["points"]
+        reward_priority = reward_resp.data[0]["priority"]
+
+        if user_points < reward_points:
+            flash("You don't have enough points to claim this reward.", "error")
+            return redirect(url_for("rewards"))
+        
+        new_points = user_points - reward_points
+        supabase.table("users").update({"points": new_points}).eq("id", user_id).execute()
+
+        supabase.table("rewards").delete().eq("user_id", user_id).eq("id", reward_id).execute()
+
+        rewards_to_shift = supabase.table("rewards").select("id, priority").eq("user_id", user_id).gt("priority", reward_priority).execute().data
+        
+        for r in rewards_to_shift:
+            supabase.table("rewards").update({"priority": r["priority"] - 1}).eq("id", r["id"]).execute()
+
+        flash("Reward claimed successfully!", "success")
+        return redirect(url_for("rewards"))
+    
+
+    except Exception as e:
+        return f"Error fetching user points: {str(e)}"
+    
+    
+
 
 if __name__ == "__main__":
     app.run(debug=True)

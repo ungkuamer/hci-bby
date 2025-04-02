@@ -10,18 +10,49 @@
 <body class="bg-gray-100 text-gray-900">
 
     <!-- Header Section -->
-    <header class="bg-pink-200 text-coolGray py-5">
-        <div class="container mx-auto flex justify-between items-center px-6">
-            <h1 class="text-3xl font-bold">Pain W Purpose</h1>
-            <nav>
-                <ul class="flex space-x-6">
-                    <li><a href="/" class="hover:text-gray-500">Home</a></li>
-                    <li><a href="/logout" class="hover:text-gray-500">Logout</a></li>
-                </ul>
-            </nav>
+    <header class="bg-pink-200 text-gray-800 py-4 shadow">
+        <div class="container mx-auto flex items-center justify-between px-6">
+            
+            <!-- Title (dashboard link) -->
+            <a href="/dashboard" class="text-2xl font-bold hover:text-gray-600">
+                Pain w Purpose
+            </a>
+    
+            <!-- Right-side Section -->
+            <div class="flex items-center space-x-4">
+                {% if top_reward %}
+                    <span class="text-md font-medium">{{ top_reward.reward_name }}</span>
+    
+                    {% if points >= top_reward.points %}
+                        <!-- Full bar - Claim reward -->
+                        <a href="/rewards" class="bg-green-500 text-white px-3 py-1.5 rounded hover:bg-green-600 text-sm font-semibold">
+                            Claim Reward
+                        </a>
+                    {% else %}
+                        <!-- Progress Bar -->
+                        <div class="w-48 bg-gray-300 rounded-full h-5 overflow-hidden">
+                            <div class="bg-green-500 h-full text-white text-xs font-semibold text-center"
+                                 style="width: {{ (points / top_reward.points) * 100 if top_reward.points != 0 else 0 }}%">
+                                {{ points }} / {{ top_reward.points }}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+    
+                <!-- Reward Link (always shown) -->
+                <a href="/rewards" class="text-md font-medium hover:text-gray-600">
+                    Reward
+                </a>
+    
+                <!-- Logout Button -->
+                <a href="/logout" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600">
+                    Logout
+                </a>
+            </div>
         </div>
     </header>
-
+    
+        
     <!-- Main Content Block -->
     <main>
         {% block content %}{% endblock %}
