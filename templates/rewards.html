@@ -64,8 +64,10 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
+
                         {% for reward in rewards %}
                         <tr>
+
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {{ reward.priority }}
                             </td>
@@ -76,6 +78,7 @@
                                 {{ reward.points }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+
                                 {% if reward.priority != 1 %}
                                 <form action="{{ url_for('prioritise_reward', reward_id=reward.id) }}" method="POST" class="inline">
                                     {{ form.csrf_token }}
@@ -84,7 +87,8 @@
                                 {% else %}
                                  <span class="text-gray-400 italic text-xs">(Highest)</span>
                                 {% endif %}
-                                {% if points >= reward.points %}
+
+                                {% if reward.id in rewards_claim %}
                                 <form action="{{ url_for('claim_reward', reward_id=reward.id) }}" method="POST" class="inline">
                                     {{ form.csrf_token }}
                                     <button type="submit" class="text-green-600 hover:text-green-800 transition duration-150 ease-in-out">
@@ -94,12 +98,15 @@
                                 {% else %}
                                 <span class="text-gray-400 italic">Claim</span>
                                 {% endif %}
+                        
                                 <form action="{{ url_for('remove_reward', reward_id=reward.id) }}" method="POST" class="inline">
                                     {{ form.csrf_token }}
                                      <button type="submit" class="text-red-600 hover:text-red-900 transition duration-150 ease-in-out">Remove</button>
                                 </form>
+
                         </tr>
                         {% endfor %}
+
                     </tbody>
                 </table>
             </div>

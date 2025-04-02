@@ -11,8 +11,8 @@
 
 ## Features
 - [ ] Add claim button to reward
-    - [ ] Button is grey if not complete
-    - [ ] Button is yellow if complete
+    - [x] Button is grey if not complete
+    - [x] Button is green if complete
     - [ ] Points will be allocated according to the priority
     - [ ] Deduct point and delete reward after claim
 

@@ -16,6 +16,8 @@ app = Flask(__name__)
 csrf = CSRFProtect(app)
 app.config['SECRET_KEY'] = "randomrandom"
 
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -44,7 +46,6 @@ def login():
             print('Error:', e, file=sys.stderr)
 
     else:
-        print('else', file=sys.stderr)
         for fieldName, errorMessages in form.errors.items():
             for err in errorMessages:
                 flash(f"Error in {fieldName}: {err}", 'login_error')
@@ -190,6 +191,12 @@ def rewards():
     try:
         curr_rewards = supabase.table("rewards").select("*").eq("user_id", user.user.id).order('priority', desc=False).execute()
         rewards_data = curr_rewards.data
+
+        rewards_claim = []
+        for reward in rewards_data:
+            if points < reward['points']:
+                break
+            rewards_claim.append(reward['id'])
         
     except Exception as e:
         return f"Error fetching rewards: {str(e)}"
@@ -200,7 +207,7 @@ def rewards():
     else:
         top_reward = None
         
-    return render_template("rewards.html", user=user, rewards=rewards_data, points=points, form=form, top_reward=top_reward)
+    return render_template("rewards.html", user=user, rewards=rewards_data, points=points, form=form, top_reward=top_reward, rewards_claim=rewards_claim)
 
 @app.route("/rewards/add", methods=["POST"])
 def add_reward():
@@ -342,9 +349,14 @@ def claim_reward(reward_id):
         user_resp = supabase.table("users").select("points").eq("id", user_id).execute()
         user_points = user_resp.data[0]["points"]
 
-        reward_resp = supabase.table("rewards").select("points", ).eq("user_id", user_id).eq("id", reward_id).execute()
+        logging.info(f"Retrieved user points: {user_points} for user {user_id}")
+
+        reward_resp = supabase.table("rewards").select("points", "priority").eq("user_id", user_id).eq("id", reward_id).execute()
+        
         reward_points = reward_resp.data[0]["points"]
         reward_priority = reward_resp.data[0]["priority"]
+
+        logging.info(f"Retrieved reward priority: {reward_priority} for reward {reward_points}")
 
         if user_points < reward_points:
             flash("You don't have enough points to claim this reward.", "error")
@@ -355,6 +367,8 @@ def claim_reward(reward_id):
 
         supabase.table("rewards").delete().eq("user_id", user_id).eq("id", reward_id).execute()
 
+        logging.info(f"Deleted reward {reward_id} for user {user_id}")
+        
         rewards_to_shift = supabase.table("rewards").select("id, priority").eq("user_id", user_id).gt("priority", reward_priority).execute().data
         
         for r in rewards_to_shift:
